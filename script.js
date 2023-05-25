@@ -1,8 +1,9 @@
+// Hämtar referenser till DOM-elementen för sökrutan, sökresultatlistan och resultat.
 const movieSearchBox = document.getElementById('movie-search-box');
 const searchList = document.getElementById('search-list');
 const resultGrid = document.getElementById('result-grid');
 
-// load movies from API
+// Laddar filmer från API:et
 async function loadMovies(searchTerm) {
   const URL = `https://omdbapi.com/?s=${searchTerm}&page=1&apikey=8b0c06bb`;
   const res = await fetch(`${URL}`);
@@ -10,6 +11,7 @@ async function loadMovies(searchTerm) {
   if (data.Response == "True") displayMovieList(data.Search);
 }
 
+// Funktion för att söka efter filmer
 function findMovies() {
   let searchTerm = movieSearchBox.value.trim();
   if (searchTerm.length > 0) {
@@ -23,6 +25,7 @@ function findMovies() {
   });
 }
 
+// Visa listan med filmer i sökresultatet
 function displayMovieList(movies) {
   searchList.innerHTML = "";
   for (let idx = 0; idx < movies.length; idx++) {
@@ -41,7 +44,6 @@ function displayMovieList(movies) {
       <div class="search-item-info">
           <h3>${movies[idx].Title}</h3>
           <p>${movies[idx].Year}</p>
-    
       </div>
     `;
     searchList.appendChild(movieListItem);
@@ -49,6 +51,7 @@ function displayMovieList(movies) {
   loadMovieDetails();
 }
 
+// Ladda detaljer om en film
 function loadMovieDetails() {
   const searchListMovies = searchList.querySelectorAll('.search-list-item');
   searchListMovies.forEach(movie => {
@@ -62,40 +65,38 @@ function loadMovieDetails() {
   });
 }
 
+// Visa detaljer om en film
 function displayMovieDetails(details) {
-  // HTML-koden för att visa detaljerna när man öppnar en film och går in på den
-    resultGrid.innerHTML = `
-      <div class="movie-poster">
-          <img src="${(details.Poster != "N/A") ? details.Poster : "image_not_found.png"}" alt="movie poster">
-      </div>
-      <div class="movie-info">
-          <h3 class="movie-title">${details.Title}</h3>
-          <ul class="movie-misc-info">
-              <li class="year">Year: ${details.Year}</li>
-              <li class="rated">Ratings: ${details.Rated}</li>
-              <li class="released">Released: ${details.Released}</li>
-          </ul>
-          <p class="genre"><b>Genre:</b> ${details.Genre}</p>
-          <p class="writer"><b>Writer:</b> ${details.Writer}</p>
-          <p class="actors"><b>Actors: </b>${details.Actors}</p>
-          <p class="rating"><b>Rating: <i class="Rating:"></i></b> 
-          ${      details.imdbRating}</p>
-          <p class="plot"><b>Plot:</b> ${details.Plot}</p>
-          <p class="language"><b>Language:</b> ${details.Language}</p>
-          <p class="awards"><b><i class="fas fa-award"></i></b> ${details.Awards}</p>
-    
-          <div class="close-button">
-              <button onclick="closeMovieDetails()">Close</button>
-          </div>
-      `;
-    }
+  resultGrid.innerHTML = `
+    <div class="movie-poster">
+        <img src="${(details.Poster != "N/A") ? details.Poster : "image_not_found.png"}" alt="movie poster">
+    </div>
+    <div class="movie-info">
+        <h3 class="movie-title">${details.Title}</h3>
+        <ul class="movie-misc-info">
+            <li class="year">Year: ${details.Year}</li>
+            <li class="rated">Ratings: ${details.Rated}</li>
+            <li class="released">Released: ${details.Released}</li>
+        </ul>
+        <p class="genre"><b>Genre:</b> ${details.Genre}</p>
+        <p class="writer"><b>Writer:</b> ${details.Writer}</p>
+        <p class="actors"><b>Actors: </b>${details.Actors}</p>
+        <p class="rating"><b>Rating: </b> ${details.imdbRating}</p>
+        <p class="plot"><b>Plot:</b> ${details.Plot}</p>
+        <p class="language"><b>Language:</b> ${details.Language}</p>
+        <p class="awards"><b><i class="fas fa-award"></i></b> ${details.Awards}</p>
+        <div class="close-button">
+            <button onclick="closeMovieDetails()">Close</button>
+        </div>
+    `;
+}
 
-    function closeMovieDetails() {
-    resultGrid.innerHTML = "";
-    }
+// Stäng filmens detaljer
+function closeMovieDetails() {
+  resultGrid.innerHTML = "";
+}
 
-
-//Koden för att kunna sortera och filtrera sökresultaten
+// Skapa sorteringsmenyn
 const sortMenu = document.createElement('div');
 sortMenu.classList.add('sort-menu');
 
@@ -111,6 +112,7 @@ const options = [
   { value: 'year', text: 'Year' },
 ];
 
+// Skapa sorteringsalternativen och lägg till dem i menyn
 options.forEach(option => {
   const sortOption = document.createElement('option');
   sortOption.setAttribute('value', option.value);
@@ -121,53 +123,48 @@ options.forEach(option => {
 sortMenu.appendChild(sortLabel);
 sortMenu.appendChild(sortSelect);
 
-// Append the sorting menu to the desired container element
+// Lägg till sorteringsmenyn i behållaren
 const sortingContainer = document.getElementById('sorting-container');
 sortingContainer.appendChild(sortMenu);
 
-// Event listener for sorting menu change
+// Lyssnare för ändringar i sorteringsmenyn
 sortSelect.addEventListener('change', () => {
   const selectedOption = sortSelect.value;
-  // Call the appropriate sorting function based on the selected option
+  // Anropa rätt sorteringsfunktion baserat på det valda alternativet
   switch (selectedOption) {
     case 'title':
-      // kalla funktionen för att sortera filmer efter titel
       sortMoviesByTitle();
       break;
     case 'year':
-      // kalla funktionen för att söka filmer efter år
       sortMoviesByYear();
       break;
-    case 'title':
   }
 });
-    
-    // Sortera efter titel
-    function sortMoviesByTitle() {
-    // Hämta filmerna
-    const movieItems = Array.from(searchList.getElementsByClassName('search-list-item'));
-    //Sortera baserat på titeln
-    movieItems.sort((a, b) => {
+
+// Sortera filmer efter titel
+function sortMoviesByTitle() {
+  // Hämta filmerna
+  const movieItems = Array.from(searchList.getElementsByClassName('search-list-item'));
+  // Sortera baserat på titeln
+  movieItems.sort((a, b) => {
     const titleA = a.querySelector('h3').textContent;
     const titleB = b.querySelector('h3').textContent;
     return titleA.localeCompare(titleB);
-    });
-    // Visa de sorterade sökresultaten i söklistan
-    movieItems.forEach(item => searchList.appendChild(item));
-    }
-    
-    // Sortera efter år
-    function sortMoviesByYear() {
-    // Hämta filmerna
-    const movieItems = Array.from(searchList.getElementsByClassName('search-list-item'));
-    // Sortera baserat på årtalet
-    movieItems.sort((a, b) => {
+  });
+  // Visa de sorterade sökresultaten i söklistan
+  movieItems.forEach(item => searchList.appendChild(item));
+}
+
+// Sortera filmer efter år
+function sortMoviesByYear() {
+  // Hämta filmerna
+  const movieItems = Array.from(searchList.getElementsByClassName('search-list-item'));
+  // Sortera baserat på årtalet
+  movieItems.sort((a, b) => {
     const yearA = a.querySelector('p').textContent;
     const yearB = b.querySelector('p').textContent;
     return yearA.localeCompare(yearB);
-    });
-    // Visa de sorterade sökresultaten i söklistan
-    movieItems.forEach(item => searchList.appendChild(item));
-    }
-    
-
+  });
+  // Visa de sorterade sökresultaten i söklistan
+  movieItems.forEach(item => searchList.appendChild(item));
+}
